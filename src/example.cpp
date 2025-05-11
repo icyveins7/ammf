@@ -13,7 +13,17 @@ void simpleMedian(T& x)
   );
 }
 
-
+template <typename T>
+class VectorMedianFilter : public std::vector<T>
+{
+public:
+  void replace(const T& in, const T& out){
+    for (auto it = begin(); it != end(); ++it){
+      if (*it == out)
+        *it = in;
+    }
+  }
+};
 
 
 int main()
@@ -29,6 +39,16 @@ int main()
 
     simpleMedian(y);
     printf("%d\n", y.at(1));
+  }
+
+  printf("======= vector median filter\n");
+  VectorMedianFilter<int> vmf(x.begin(), x.begin()+3);
+
+  for (int i = 0; i < 2; ++i){
+    if (i > 1)
+      vmf.replace(x.at(i + 2), x.at(i - 1));
+    simpleMedian(vmf);
+    printf("%d\n", vmf.at(1));
   }
 
   return 0;
