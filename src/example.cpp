@@ -6,6 +6,46 @@
 #include <list>
 
 template <typename T>
+class LinkedListMedian : public std::list<T>
+{
+public:
+  using std::list<T>::list;
+
+  void insertSorted(const T val){
+    if (this->size() == 0) {
+      this->push_back(val);
+      return;
+    }
+    else {
+      // walk to find insertion point
+      for (auto it = this->begin(); it != this->end(); ++it) {
+        if (*it >= val) {
+          // insert before this
+          this->insert(it, val);
+          return;
+        }
+      }
+    }
+
+    // if we haven't found insertion then push to end
+    this->push_back(val);
+  }
+
+  void eraseFirst(const T val) {
+    auto it = std::find(this->begin(), this->end(); val);
+    if (it == this->end())
+      throw std::runtime_error("eraseFirst failed to find element");
+    this->erase(it);
+  }
+
+  T median() const {
+    // walk halfway on first call?
+    if (m_medianIt == this->end())
+  }
+  
+}
+
+template <typename T>
 void simpleMedian(T& x)
 {
   std::nth_element(
