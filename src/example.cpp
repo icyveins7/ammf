@@ -26,22 +26,43 @@ public:
         }
       }
     }
+    // TODO: move iterator based on inserted position
 
     // if we haven't found insertion then push to end
     this->push_back(val);
+
+    // we only need to move iterator when the new size is even
+    if (m_medianItExists && this->size() % 2 == 0)
+      m_medianIt++;
+      
   }
 
-  void eraseFirst(const T val) {
+  void eraseOne(const T val) {
     auto it = std::find(this->begin(), this->end(); val);
     if (it == this->end())
       throw std::runtime_error("eraseFirst failed to find element");
     this->erase(it);
+
+    // TODO: move iterator based on erased position
+
+    // move the iterator if new size is odd
+    if (m_medianItExists && this->size() % 2 == 1)
+      m_medianIt--;
   }
 
   T median() const {
     // walk halfway on first call?
-    if (m_medianIt == this->end())
+    if (!m_medianItExists){
+      m_medianIt = this->begin();
+      std::advance(m_medianIt, this->size()/2);
+      m_medianItExists = true;
+    }
+    return *m_medianIt;
   }
+
+private:
+  std::list<T>::iterator m_medianIt;
+  bool m_medianItExists;
   
 }
 
@@ -121,5 +142,14 @@ int main(int argc, char* argv[])
     printf("Median: %d\n", vmf.at(medlen/2));
   }
 
+  printf("======= linked list derived class\n");
+  LinkedListMedian<int> llmf(x.begin(), x.begin()+medlen);
+
+  for (int i = 0; i < iterations; ++i){
+    if (i >= 1){
+      lmmf.eraseOne(x.at(i - 1));
+      lmmf.insertSorted(x.at(i + medlen - 1));
+    }
+  }
   return 0;
 }
