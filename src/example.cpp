@@ -12,6 +12,11 @@ public:
   using std::list<T>::list;
 
   void insertSorted(const T val){
+    // we cannot insert once we have settled on the median length
+    if (m_medianLength >= 0)
+      throw std::runtime_error("cannot insert once median length fixed. use replace instead");
+
+
     if (this->size() == 0) {
       this->push_back(val);
       return;
@@ -26,17 +31,95 @@ public:
         }
       }
     }
-    // TODO: move iterator based on inserted position
-
     // if we haven't found insertion then push to end
     this->push_back(val);
-
-    // we only need to move iterator when the new size is even
-    if (m_medianItExists && this->size() % 2 == 0)
-      m_medianIt++;
-      
   }
 
+  void replace(const T toIns, const T toRem){
+    if (m_medianLength < 0)
+      throw std::runtime_error("must call median() at least once to finalise median length before replacing");
+
+    // convention is to use geq
+    const T oldMed = this->median();
+    const bool insIsHigher = toIns > oldMed;
+    const bool remIsHigher = toRem > oldMed;
+    bool inserted = false, removed = false;
+    // 4 cases
+    // a. both are below median, median does not change
+    if (!insIsHigher && !remIsHigher) {
+      for (auto it = this->begin(); it != m_medianIt; ++it){
+        if (!inserted && *it >= toIns){
+          inserted = true;
+          this->insert(it, toIns);
+        }
+        if (!removed && *it == toRem){
+          removed = true;
+          this->erase(it);
+        }
+        if (inserted && removed)
+          break; // early exit if possible
+      }
+    }
+
+    // b. both are above median, median does not change
+    else if (insIsHigher && remIsHigher) {
+      for (auto it = m_medianIt; it != this->end(); ++it){
+        if (!inserted && *it >= toIns){
+          inserted = true;
+          this->insert(it, toIns);
+        }
+        if (!removed && *it == toRem){
+          removed = true;
+          this->erase(it);
+        }
+        if (inserted && removed)
+          break; // early exit if possible
+      }
+    }
+
+    // c. new is below, old is above, median must be decremented
+    else if (!insIsHigher && remIsHigher) {
+      // insert below
+      for (auto it = this->begin(); it != m_medianIt; ++it){
+        if (*it >= toIns){
+          this->insert(it, toIns);
+          break;
+        }
+      }
+      // remove above
+      for (auto it = m_medianIt; it != this->end(); ++it){
+        if (*it == toRem){
+          this->erase(it);
+          break;
+        }
+      }
+      // move median back
+      m_medianIt--;
+    }
+
+    // d. new is above, old is below, median must be incremented
+    else if (insIsHigher && !remIsHigher) {
+      // remove below
+      for (auto it = this->begin(); it != m_medianIt; ++it){
+        if (*it == toRem){
+          this->erase(it);
+          break;
+        }
+      }
+      // insert above
+      for (auto it = m_medianIt; it != this->end(); ++it){
+        if (*it >= toIns){
+          this->insert(it, toIns);
+          break;
+        }
+      }
+      // move median forward
+      m_medianIt++;
+    }
+
+  }
+
+  // dont think i need this
   void eraseOne(const T val) {
     auto it = std::find(this->begin(), this->end(); val);
     if (it == this->end())
@@ -50,19 +133,20 @@ public:
       m_medianIt--;
   }
 
-  T median() const {
+  T median(){
     // walk halfway on first call?
-    if (!m_medianItExists){
+    if (m_medianLength < 0){
       m_medianIt = this->begin();
       std::advance(m_medianIt, this->size()/2);
-      m_medianItExists = true;
+      // flag that median length is set
+      m_medianLength = this->size();
     }
     return *m_medianIt;
   }
 
 private:
   std::list<T>::iterator m_medianIt;
-  bool m_medianItExists;
+  int m_medianLength = -1;
   
 }
 
@@ -146,9 +230,12 @@ int main(int argc, char* argv[])
   LinkedListMedian<int> llmf(x.begin(), x.begin()+medlen);
 
   for (int i = 0; i < iterations; ++i){
-    if (i >= 1){
-      lmmf.eraseOne(x.at(i - 1));
-      lmmf.insertSorted(x.at(i + medlen - 1));
+    // fix the median length
+    if (i == 0)
+      llmf.median();
+
+    else{
+      lmmf.
     }
   }
   return 0;
