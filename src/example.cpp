@@ -119,23 +119,12 @@ public:
 
   }
 
-  // dont think i need this
-  void eraseOne(const T val) {
-    auto it = std::find(this->begin(), this->end(); val);
-    if (it == this->end())
-      throw std::runtime_error("eraseFirst failed to find element");
-    this->erase(it);
-
-    // TODO: move iterator based on erased position
-
-    // move the iterator if new size is odd
-    if (m_medianItExists && this->size() % 2 == 1)
-      m_medianIt--;
-  }
-
   T median(){
     // walk halfway on first call?
     if (m_medianLength < 0){
+      // sort on first run
+      this->sort();
+      // walk
       m_medianIt = this->begin();
       std::advance(m_medianIt, this->size()/2);
       // flag that median length is set
@@ -145,10 +134,10 @@ public:
   }
 
 private:
-  std::list<T>::iterator m_medianIt;
+  typename std::list<T>::iterator m_medianIt;
   int m_medianLength = -1;
   
-}
+};
 
 template <typename T>
 void simpleMedian(T& x)
@@ -235,8 +224,14 @@ int main(int argc, char* argv[])
       llmf.median();
 
     else{
-      lmmf.
+      llmf.replace(
+        x.at(i+medlen-1),
+        x.at(i-1)
+      );
     }
+
+    int med = llmf.median();
+    printf("Median: %d\n", med);
   }
   return 0;
 }
