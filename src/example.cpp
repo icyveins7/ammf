@@ -166,6 +166,24 @@ public:
   }
 };
 
+// just a quick function to generate some data
+std::vector<int> quickrandvec(size_t len){
+  std::vector<int> x(len);
+  // fill random values
+  for (auto& v : x){
+    v = std::rand() % 10;
+  }
+  return x;
+}
+
+// and a quick function to print a generic container
+template <typename Iterator>
+void quickprint(Iterator begin, Iterator end){
+  for (auto it = begin; it != end; ++it){
+    printf("%d ", *it);
+  }
+  printf("\n");
+}
 
 int main(int argc, char* argv[])
 {
@@ -181,14 +199,8 @@ int main(int argc, char* argv[])
   printf("Using median length %zd\n", medlen);
   size_t iterations = len - medlen + 1;
 
-  std::vector<int> x(len);
-  // fill random values
-  for (auto& v : x){
-    v = std::rand() % 10;
-    printf("%d ", v);
-  }
-  printf("\n");
-
+  std::vector<int> x = quickrandvec(len);
+  quickprint(x.begin(), x.end());
 
   printf("======= just nth_element \n");
   for (int i = 0; i < iterations; ++i){
@@ -197,6 +209,7 @@ int main(int argc, char* argv[])
       x.begin() + i + medlen
     );
 
+    quickprint(y.begin(), y.end());
     simpleMedian(y);
     printf("Median: %d\n", y.at(medlen/2));
   }
@@ -207,9 +220,8 @@ int main(int argc, char* argv[])
   for (int i = 0; i < iterations; ++i){
     if (i >= 1)
       vmf.replace(x.at(i + medlen-1), x.at(i - 1));
-    for (int j = 0; j < vmf.size(); ++j)
-      printf("%d ", vmf.at(j));
-    printf("\n");
+    
+    quickprint(vmf.begin(), vmf.end());
 
     simpleMedian(vmf);
     printf("Median: %d\n", vmf.at(medlen/2));
@@ -229,6 +241,8 @@ int main(int argc, char* argv[])
         x.at(i-1)
       );
     }
+
+    quickprint(llmf.begin(), llmf.end());
 
     int med = llmf.median();
     printf("Median: %d\n", med);
