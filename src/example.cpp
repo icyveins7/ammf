@@ -41,8 +41,8 @@ public:
 
     // convention is to use geq
     const T oldMed = this->median();
-    const bool insIsHigher = toIns > oldMed;
-    const bool remIsHigher = toRem > oldMed;
+    const bool insIsHigher = toIns >= oldMed;
+    const bool remIsHigher = toRem >= oldMed;
     bool inserted = false, removed = false;
     // 4 cases
     // a. both are below median, median does not change
@@ -59,6 +59,13 @@ public:
         if (inserted && removed)
           break; // early exit if possible
       }
+
+      // if not yet inserted, insert
+      if (!inserted)
+        this->insert(m_medianIt, toIns);
+      // if not yet removed, remove
+      if (!removed) // TODO: maybe check if it's equal?
+        this->erase(m_medianIt);
     }
 
     // b. both are above median, median does not change
@@ -75,6 +82,13 @@ public:
         if (inserted && removed)
           break; // early exit if possible
       }
+
+      // if not yet inserted, insert
+      if (!inserted)
+        this->insert(m_medianIt, toIns);
+      // if not yet removed, remove
+      if (!removed) // TODO: maybe check if it's equal?
+        this->erase(m_medianIt);
     }
 
     // c. new is below, old is above, median must be decremented
@@ -86,6 +100,9 @@ public:
           break;
         }
       }
+      // if not yet inserted, insert
+      if (!inserted)
+        this->insert(m_medianIt, toIns);
       // remove above
       for (auto it = m_medianIt; it != this->end(); ++it){
         if (*it == toRem){
@@ -93,6 +110,9 @@ public:
           break;
         }
       }
+      // if not yet removed, remove
+      if (!removed) // TODO: maybe check if it's equal?
+        this->erase(m_medianIt);
       // move median back
       m_medianIt--;
     }
@@ -106,6 +126,9 @@ public:
           break;
         }
       }
+      // if not yet removed, remove
+      if (!removed) // TODO: maybe check if it's equal?
+        this->erase(m_medianIt);
       // insert above
       for (auto it = m_medianIt; it != this->end(); ++it){
         if (*it >= toIns){
@@ -113,6 +136,9 @@ public:
           break;
         }
       }
+      // if not yet inserted, insert
+      if (!inserted)
+        this->insert(m_medianIt, toIns);
       // move median forward
       m_medianIt++;
     }
