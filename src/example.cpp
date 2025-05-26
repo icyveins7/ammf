@@ -39,22 +39,28 @@ public:
     if (m_medianLength < 0)
       throw std::runtime_error("must call median() at least once to finalise median length before replacing");
 
+    std::cout << "Removing " << toRem << std::endl;
+    std::cout << "Inserting " << toIns << std::endl;
     // convention is to use geq
     const T oldMed = this->median();
     const bool insIsHigher = toIns >= oldMed;
     const bool remIsHigher = toRem >= oldMed;
+    printf("inserted >= median ? %s\n", insIsHigher ? "true" : "false");
+    printf("removed >= median ? %s\n", remIsHigher ? "true" : "false");
     bool inserted = false, removed = false;
     // 4 cases
     // a. both are below median, median does not change
     if (!insIsHigher && !remIsHigher) {
-      for (auto it = this->begin(); it != m_medianIt; ++it){
+      for (auto it = this->begin(); it != m_medianIt;){
         if (!inserted && *it >= toIns){
           inserted = true;
           this->insert(it, toIns);
+          std::cout << "Inserting before " << *it << std::endl;
+          ++it;
         }
         if (!removed && *it == toRem){
           removed = true;
-          this->erase(it);
+          it = this->erase(it);
         }
         if (inserted && removed)
           break; // early exit if possible
@@ -70,14 +76,15 @@ public:
 
     // b. both are above median, median does not change
     else if (insIsHigher && remIsHigher) {
-      for (auto it = m_medianIt; it != this->end(); ++it){
+      for (auto it = m_medianIt; it != this->end();){
         if (!inserted && *it >= toIns){
           inserted = true;
           this->insert(it, toIns);
+          ++it;
         }
         if (!removed && *it == toRem){
           removed = true;
-          this->erase(it);
+          it = this->erase(it);
         }
         if (inserted && removed)
           break; // early exit if possible
@@ -106,7 +113,7 @@ public:
       // remove above
       for (auto it = m_medianIt; it != this->end(); ++it){
         if (*it == toRem){
-          this->erase(it);
+          it = this->erase(it);
           break;
         }
       }
